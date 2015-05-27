@@ -163,8 +163,6 @@ class Molecule(object):
     #Hold the float for the z coordinate
     self.mz = float(0)
 
-
-
 ### --- Parse the input XYZ file and convert it into a Molecule Class list of lists --- ###
 def parseXYZ(ifile):
   ### --- Open parent file, read it in and close it --- ###
@@ -325,8 +323,7 @@ def center(filelol, weights, centerswitch, centerxyz):
   return centerxyz, filelol
 
 
-#void rotmol (int n, double x[4][MAXPOINTS], double y[4][MAXPOINTS], double u[4][4])
-#{
+### --- ROTMOL --- ###
 def rotmol(filelol, rotmat):
   '''
   ROTMOL
@@ -350,8 +347,7 @@ def rotmol(filelol, rotmat):
   return filelol
 
 
-#void jacobi (double a[4][4], double d[4], double v[4][4], int nrot)
-#{
+### --- JACOBI --- ###
 def jacobi(matrix, maxsweeps):
   '''
   JACOBI
@@ -426,8 +422,6 @@ def jacobi(matrix, maxsweeps):
           eigenval[j] = s*s*eigenval[i] + c*c*eigenval[j] +  2.0*c*s*b
           eigenval[i] = dtemp
 
-  ###Exit_now:
-
   maxsweeps = m
 
   for j in range(3):
@@ -450,8 +444,7 @@ def jacobi(matrix, maxsweeps):
 
 
 
-#void q2mat (double q[4], double u[4][4])
-#{
+### --- Q2MAT --- ###
 def q2mat(quaternion):
   '''
   Q2MAT
@@ -476,8 +469,7 @@ def q2mat(quaternion):
   return rotmat
 
 
-#void qtrfit (int n, double x[4][MAXPOINTS], double y[4][MAXPOINTS], double w[MAXPOINTS], double q[4], double u[4][4], int nr)
-#{
+### --- QTRFIT --- ###
 def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
   '''
    QTRFIT
@@ -576,397 +568,3 @@ def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
   rotmat = q2mat(quaternion)
 
   return quaternion, rotmat, maxsweeps
-
-
-'''=======================================================
- FITEST
- rigid fit test driver
- reads in data, fits, and writes out
-'''
-
-#int main(int argc, char *argv[])
-#{
-# int n_fields_r;                 no of fields in xmol file for ref. molec
-# int n_fields_f;                 no of fields in xmol file for fit. molec
-# int nat_r;                      number of all atoms in reference molecule
-# int nat_f;                      number of all atoms in fitted molecule
-# char title_r[MAXLINELEN];       title line in reference mol. xmol file
-# char title_f[MAXLINELEN];       title line in fitted mol. xmol file
-# char symb_r[MAXPOINTS][10];     atom type symbols for reference molecule
-# char symb_f[MAXPOINTS][10];     atom type symbols for fitted molecule
-# char line[MAXLINELEN];          scratch space for line
-# double xyz_r[4][MAXPOINTS];     coordinates for reference molecule
-# double xyz_f[4][MAXPOINTS];     coordinates for fitted molecule
-# double charge_r[MAXPOINTS];     charges for reference molecule
-# double charge_f[MAXPOINTS];     charges for fitted molecule
-# double modes_r[4][MAXPOINTS];   normal modes for reference
-# double modes_f[4][MAXPOINTS];   normal modes for fitted
-# int npairs;                     no of fitted atom pairs
-# int atoms_r[MAXPOINTS];         atoms of ref. molecule to be superimposed
-# int atoms_f[MAXPOINTS];         atoms of fit. molecule to be superimposed
-# double ref_xyz[4][MAXPOINTS];   ref. molecule atom coordinates to fit
-# double fit_xyz[4][MAXPOINTS];   fit. molecule atom coordinates to fit
-# double weight[MAXPOINTS];       fitted atom pair weights
-# double ref_center[4];           center of ref. molecule fitted atoms
-# double fit_center[4];           center of ref. molecule fitted atoms
-# double quatnorm[4];                    quaternion
-# double leftrotmatrix[4][4];                 left rotation matrix for coordinates
-# int i, j, ch;                   aux variables
-# double s, d, wd, rms, wnorm, dotm;    aux variables
-# FILE *refmol;                   file variable for reference mol xmol file
-# FILE *fitmol;                   file variable for reference mol xmol file
-# FILE *pairinp;                  file with fitted atom pairs and weights
-# FILE *outfile;                  rotated and translated fit. mol. xmol file
-# FILE *statfile;                 file with fit goodness values
-# int max_sweeps;                 max number of iterations in jacobi
-# int opt;                        option letter
-# int read_pairs;                 1 - read pairs, 0 - make pairs, weights
-# static char usage[]=
-#  "Usage : quatfit [-r ref] [-f fit] [-p pairs] [-o out] [-s stat]\n"
-# extern char *optarg;            option argument from getopt
-#
-# # set defaults
-# max_sweeps = 30
-# read_pairs = 1
-# refmol = stdin
-# fitmol = stdin
-# pairinp = stdin
-# outfile = stdout
-# statfile = stdout
-#
-# while ((opt = getopt(argc, argv, OPTIONS)) != EOF) {
-#   switch (opt) {
-#     case 'r':
-#       if((refmol = fopen(optarg, "r")) == NULL)  {
-#         fprintf(stderr,"Error: Could not find ref-mol-file: %s\n", optarg)
-#         return(1)
-#         }
-#       break
-#
-#     case 'f':
-#       if((fitmol = fopen(optarg, "r")) == NULL)  {
-#         fprintf(stderr,"Error: Could not find fit-mol-file: %s\n", optarg)
-#         return(2)
-#         }
-#       break
-#
-#     case 'p':
-#       if(strcmp(optarg,"none") == 0) {  if argument is "none"
-#         read_pairs = 0
-#         break
-#         }
-#       if((pairinp = fopen(optarg, "r")) == NULL)  {
-#         fprintf(stderr,
-#                 "Error: Could not find pairs-wieight-file: %s\n", optarg)
-#         return(3)
-#         }
-#       break
-#
-#     case 's':
-#       if((statfile = fopen(optarg, "w")) == NULL) {
-#         fprintf(stderr, "Error: Could not open out-file %s\n", optarg)
-#         return(4)
-#         }
-#       break
-#
-#     case 'o':
-#       if((outfile = fopen(optarg, "w")) == NULL)  {
-#         fprintf(stderr,
-#                 "Error: Could not open fitted-mol-out-file: %s\n", optarg)
-#         return(5)
-#         }
-#       break
-#
-#     case '?':
-#       fprintf(stderr,"Error: %s\n", usage)
-#       return(6)
-#     }   end switch
-#   }  end while
-#
-#
-# # Now read in the ref molecule
-# while (fgets(line, MAXLINELEN, refmol) != NULL) {  scan until n_at found
-#   i = 0
-#   while ((ch = line[i++]) != '\0') {
-#     if(!isspace(ch)) {
-#       i = -1
-#       break
-#       }
-#     }
-#   if(i == -1) {
-#     break
-#     }
-#   }
-#
-# if(i != -1) {  if white space only to the end
-#  fprintf(stderr, "Error: Error in line 1 of refmol file\n")
-#  return(7)
-#  }
-#
-# if(sscanf(line, "%d\n", &nat_r) != 1) {   n  atoms
-#   fprintf(stderr, "Error: Error in line 1 of refmol file.\n")
-#   return(8)
-#   }
-#
-# if(nat_r >= MAXPOINTS) {
-#   fprintf(stderr,
-#   "Error: Molecule too big. Recompile program with larger MAXPOINTS\n")
-#   return(8)
-#   }
-#
-# if(fgets(title_r,  MAXLINELEN, refmol) == NULL) {   title line
-#   fprintf(stderr, "Error: Error in line 2 of refmol file.\n")
-#   return(9)
-#   }
-#
-# # read coordinates of ref molecule
-# n_fields_r = 0
-# for (i = 1; i <=  nat_r; i++) {
-#   if(scan_line(refmol, &n_fields_r, &symb_r[i][0], &xyz_r[1][i], &xyz_r[2][i],
-#                &xyz_r[3][i], &charge_r[i], &modes_r[1][i], &modes_r[2][i],
-#                &modes_r[3][i]) != 0) {
-#     fprintf(stderr,"Error: Error in line %d of refmol file.\n", i+2)
-#     return(10)
-#     }
-#   }
-#
-# # Now read in the fitted molecule
-# while (fgets(line, MAXLINELEN, fitmol) != NULL) {  scan until n_at found
-#   i = 0
-#   while ((ch = line[i++]) != '\0') {
-#     if(!isspace(ch)) {
-#       i = -1
-#       break
-#       }
-#     }
-#   if(i == -1) {
-#     break
-#     }
-#   }
-#
-# if(i != -1) {  if white space only to the end
-#  fprintf(stderr, "Error: Error in line 1 of fitmol file\n")
-#  return(11)
-#  }
-#
-# if(sscanf(line, "%d\n", &nat_f) != 1) {
-#   fprintf(stderr, "Error: Error in line 1 of fitmol file.\n")
-#   return(12)
-#   }
-#
-# if(nat_f >= MAXPOINTS) {
-#   fprintf(stderr,
-#   "Error: Molecule too big. Recompile program with larger MAXPOINTS\n")
-#   return(13)
-#   }
-#
-# if(fgets(title_f,  MAXLINELEN, fitmol) == NULL) {
-#   fprintf(stderr, "Error: Error in line 2 of fitmol file\n")
-#   return(13)
-#   }
-#
-# # read coordinates of fitted molecule
-# n_fields_f = 0
-# for (i = 1; i <=  nat_f; i++) {
-#   if(scan_line(fitmol, &n_fields_f, &symb_f[i][0], &xyz_f[1][i], &xyz_f[2][i],
-#                &xyz_f[3][i], &charge_f[i], &modes_f[1][i], &modes_f[2][i],
-#                &modes_f[3][i]) != 0) {
-#     fprintf(stderr,"Error: Error in line %d of fitmol file.\n", i+2)
-#     return(14)
-#     }
-#   }
-#
-# # Read or set pairs and weights
-# if(read_pairs == 1) {
-#   while (fgets(line, MAXLINELEN, pairinp) != NULL) {  skip white space
-#     i = 0
-#     while ((ch = line[i++]) != '\0') {
-#       if(!isspace(ch)) {
-#         i = -1
-#         break
-#         }
-#       }
-#     if(i == -1) {
-#       break
-#       }
-#     }
-#
-#   if(i != -1) {  if white space only to the end
-#     fprintf(stderr, "Error: Error in line 1 of pairs and weights file\n")
-#     return(15)
-#     }
-#
-#   if(sscanf(line, "%d", &npairs) != 1) {
-#     fprintf(stderr,
-#             "Error: Error in line 1 of file with pairs and weights\n")
-#     return(16)
-#     }
-#
-#   if(npairs < 2) {
-#     fprintf(stderr,
-#             "Error: Cannot fit a single atom. Need at least 2\n")
-#     return(16)
-#     }
-#
-#   for (i = 1; i <= npairs; i++) {
-#     if(fscanf(pairinp,"%d%d%le",&atoms_r[i], &atoms_f[i], &weight[i]) != 3) {
-#       fprintf(stderr,
-#               "Error: Error in line %d of pairs and weights file.\n", i+2)
-#       return(17)
-#       }
-#     if((atoms_r[i] < 1) || (atoms_r[i] > nat_r) || (atoms_f[i] < 1) ||
-#        (atoms_f[i] > nat_f) ) {
-#       fprintf(stderr,
-#       "Error: Error in line %d of pairs and weights (number out of range)\n",
-#       i+2)
-#       return(18)
-#       }
-#     }
-#   }
-# else {  # initialize pairs to consectutive numbers
-#   npairs = nat_r
-#   if(nat_r > nat_f) {
-#     npairs = nat_f
-#     }
-#
-#   for(i = 1; i <= npairs; i++) {
-#     atoms_r[i] = i
-#     atoms_f[i] = i
-#     weight[i] = 1.0
-#     }
-#   }
-#
-# # extract fitted atoms to tables
-# for (i = 1; i <= npairs; i++) {
-#   for (j = 1; j <= 3; j++) {
-#     ref_xyz[j][i] = xyz_r[j][atoms_r[i]]
-#     fit_xyz[j][i] = xyz_f[j][atoms_f[i]]
-#     }
-#   }
-#
-# # ===  Atom coordinates are fit in both modes ===
-# # center ref molecule fitted atoms around (0,0,0)
-# center (npairs, ref_xyz, weight, 1, ref_center)
-#
-# # center fitted molecule fitted atoms around (0,0,0)
-# center (npairs, fit_xyz, weight, 1, fit_center)
-#
-# # fit specified atoms of fit_molecule to those of ref_molecule
-# qtrfit(npairs, fit_xyz, ref_xyz, weight, quatnorm, u, max_sweeps)
-#
-# ''' subtract coordinates of the center of fitted atoms of the fitted molecule
-#    from all atom coordinates of the fitted molecule (note that weight is
-#    a dummy parameter) '''
-# center(nat_f, xyz_f, weight, 2, fit_center)
-#
-# # rotate the fitted molecule by the rotation matrix u
-# rotmol(nat_f, xyz_f, xyz_f, u)
-# # same with set of fitted atoms of the fitted molecule
-# rotmol(npairs, fit_xyz, fit_xyz, u)
-#
-# # if modes given in fitted molecule, rotate the modes too
-# if(n_fields_f > 4) {
-#   rotmol(nat_f, modes_f, modes_f, u)
-#
-#   # calculate dot product of reference and fitted molecule modes
-#   if(n_fields_r > 4) {
-#     dotm = 0.0
-#     for (i = 1; i <= npairs; i++) {
-#       for (j = 1; j <= 3; j++) {
-#         dotm += modes_r[j][atoms_r[i]]*modes_f[j][atoms_f[i]]
-#       }
-#     }
-#   }
-# }
-#
-# ''' translate atoms of the fitted molecule to the center
-#      of fitted atoms of the reference molecule '''
-# center(nat_f, xyz_f, weight, 3, ref_center)
-# # same with set of fitted atoms of the fitted molecule
-# center(npairs, fit_xyz, weight, 3, ref_center)
-# # translate fitted atoms of reference molecule to their orig. location
-# center(npairs, ref_xyz, weight, 3, ref_center)
-#
-# # write modified XYZ file for fitted molecule
-# fprintf(outfile,"%d\n%s", nat_f, title_f)
-# for (i = 1; i <= nat_f; i++) {
-#   write_line(outfile, n_fields_f, symb_f[i], xyz_f[1][i], xyz_f[2][i],
-#              xyz_f[3][i], charge_f[i], modes_f[1][i], modes_f[2][i],
-#              modes_f[3][i])
-#   }
-#
-# fflush(outfile)
-# ''' find distances between fitted and reference atoms and print them in
-#    out file '''
-#
-# fprintf(statfile,
-#          "\nDistances and weighted distances between fitted atoms\n")
-#fprintf(statfile,"Ref.At. Fit.At.  Distance  Dist*math.sqrt(weight)  weight\n")
-# rms = 0.0
-# wnorm = 0.0
-# for (i = 1; i <= npairs; i++) {
-#   d = 0.0
-#   for (j = 1; j <= 3; j++) {
-#     s = ref_xyz[j][i] - fit_xyz[j][i]
-#     d += s*s
-#     }
-#   rms += d
-#   //cout << "D is " << d << " s is " << s << " wd is " << wd << " wnorm is " << wnorm <<  " numPairs " << npairs << endl
-#   fprintf(statfile, "  %3d    %3d  %11.6f   %11.6f    %11.6f\n", atoms_r[i], atoms_f[i], d, wd, weight[i])
-#   }
-#
-#
-# rms = math.sqrt(rms/npairs);//wnorm)
-# fprintf(statfile, "\n\nWeighted root mean square=%10.6f\n\n", rms)
-# fprintf(statfile, "\n\nCenter of reference molecule fitted atoms\n")
-# fprintf(statfile, "Xc = %11.6f Yc = %11.6f Zc = %11.6f\n",
-#         ref_center[1], ref_center[2], ref_center[3])
-#
-# ''' {
-#  double rmsd = 0.0
-#  double x,y,z
-#  for(int i = 1; i <= npairs; i++)
-#  {
-#    x = ref_xyz[1][i] - fit_xyz[1][i]
-#    y = ref_xyz[2][i] - fit_xyz[2][i]
-#    z = ref_xyz[3][i] - fit_xyz[3][i]
-#
-#    rmsd += x*x
-#    rmsd += y*y
-#    rmsd += z*z
-#    //rmsd += (pow(ref_xyz[1][i] - fit_xyz[1][i], 2) + pow(ref_xyz[2][i] - fit_xyz[2][i], 2) + pow(ref_xyz[3][i] - fit_xyz[3][i], 2))
-#  }
-#  //rmsd /= static_cast<double>(npairs)
-#  rms = math.sqrt(rmsd/npairs)
-#  }'''
-#
-# fprintf(statfile, "\n\nWeighted root mean square=%10.6f\n\n", rms)
-# fprintf(statfile, "\n\nCenter of reference molecule fitted atoms\n")
-# fprintf(statfile, "Xc = %11.6f Yc = %11.6f Zc = %11.6f\n",
-#         ref_center[1], ref_center[2], ref_center[3])
-#
-# fprintf(statfile, "\n\nCenter of fitted molecule fitted atoms\n")
-# fprintf(statfile, "Xc = %11.6f Yc = %11.6f Zc = %11.6f\n",
-#         fit_center[1], fit_center[2], fit_center[3])
-#
-# fprintf(statfile,"\n\nLeft rotation matrix\n")
-# for (i = 1; i <= 3; i++) {
-#   fprintf(statfile, " %11.6f  %11.6f  %11.6f\n",
-#           u[1][i], u[2][i], u[3][i])
-#   }
-#
-# if((n_fields_f > 4) && (n_fields_r > 4)) {
-#   fprintf(statfile,
-#   "\nDot product of normal modes on fitted atom pairs =%11.6f\n", dotm)
-#   }
-#
-# fclose(outfile)
-# fclose(statfile)
-# fclose(pairinp)
-# fclose(fitmol)
-# fclose(refmol)
-#
-# return(0)
-#
-# }
-#

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="be6ecd54-96ee-426f-9acd-24f10f348aa3" name="Default" comment="" />
+    <list default="true" id="be6ecd54-96ee-426f-9acd-24f10f348aa3" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib-quatfit/quatfit.py" afterPath="$PROJECT_DIR$/lib-quatfit/quatfit.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="QuatfitPy.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -38,21 +41,11 @@
       <file leaf-file-name="quatfit.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.8595238" vertical-offset="5601" max-vertical-offset="18563">
-              <caret line="377" column="20" selection-start-line="377" selection-start-column="20" selection-end-line="377" selection-end-column="20" />
+            <state vertical-scroll-proportion="-3.1265824" vertical-offset="5833" max-vertical-offset="10925">
+              <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
               <folding>
                 <element signature="e#5607#5616#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="quatfit2" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit2">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="10336" max-vertical-offset="17708">
-              <caret line="408" column="56" selection-start-line="408" selection-start-column="3" selection-end-line="408" selection-end-column="56" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -353,14 +346,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit2">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="7752" max-vertical-offset="17784">
-          <caret line="408" column="56" selection-start-line="408" selection-start-column="3" selection-end-line="408" selection-end-column="56" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/QuatfitPy-CLASSICAL.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1140" max-vertical-offset="1710">
@@ -368,14 +353,6 @@
           <folding>
             <element signature="e#1447#1457#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit2">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="6479" max-vertical-offset="17708">
-          <caret line="408" column="56" selection-start-line="408" selection-start-column="3" selection-end-line="408" selection-end-column="56" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -391,8 +368,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.8595238" vertical-offset="5601" max-vertical-offset="18563">
-          <caret line="377" column="20" selection-start-line="377" selection-start-column="20" selection-end-line="377" selection-end-column="20" />
+        <state vertical-scroll-proportion="-3.1265824" vertical-offset="5833" max-vertical-offset="10925">
+          <caret line="164" column="0" selection-start-line="164" selection-start-column="0" selection-end-line="164" selection-end-column="0" />
           <folding>
             <element signature="e#5607#5616#0" expanded="true" />
           </folding>
