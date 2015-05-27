@@ -1,0 +1,20 @@
+Distances and weighted distances between fitted atoms
+Ref.At. Fit.At.  Distance  Dist*sqrt(weight)  weight
+  Pd      Pd     0.051634      0.051634      1.000000
+  P       P      0.015827      0.015827      1.000000
+  C       C      0.015582      0.015582      1.000000
+  C       C      0.016739      0.016739      1.000000
+  C       C      0.045051      0.045051      1.000000
+
+Weighted root mean square = 0.170196
+
+Center of reference molecule fitted atoms
+Xc = 0.881935 Yc = -1.209476 Zc = -0.566777
+
+Center of fitted molecule fitted atoms
+Xc = -1.449649 Yc = -0.752874 Zc = 0.363699
+
+Left rotation matrix
+  -0.924298    0.373173    0.080090
+   0.381170    0.891790    0.243762
+   0.019542    0.255837   -0.966522

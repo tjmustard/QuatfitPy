@@ -137,7 +137,6 @@ import os
 from sys import *
 import math
 import sys
-from decimal import *
 
 
 ###==================================================================================================================###
@@ -155,13 +154,13 @@ class Molecule(object):
     #Hold the float for the z coordinate
     self.z = float(0)
     #Hold an int/float for the charge of this atom
-    self.charge = float(0)
+    self.charge = ''
     #Hold the float for the x coordinate
-    self.mx = float(0)
+    self.mx = ''
     #Hold the float for the y coordinate
-    self.my = float(0)
+    self.my = ''
     #Hold the float for the z coordinate
-    self.mz = float(0)
+    self.mz = ''
 
 ### --- Parse the input XYZ file and convert it into a Molecule Class list of lists --- ###
 def parseXYZ(ifile):
@@ -568,3 +567,168 @@ def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
   rotmat = q2mat(quaternion)
 
   return quaternion, rotmat, maxsweeps
+
+### --- Run the classic quatfit --- ###
+def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
+  '''
+  This runs quatfit in it's classic form you must give it:
+  reffile - reference coordinate file (xyz)
+  fitfile - fit coordinate file (xyz) (The one you want to change)
+  pairsfile - the pairs file
+  ofile - the output file name
+  statfile - the stat file name if wanted
+  '''
+
+  #Check to make sure all the files are there
+  if ofile == '':
+    print "You must specify an output file."
+    sys.exit(0)
+  elif reffile == '':
+    print "You must specify an reference file."
+    sys.exit(0)
+  elif fitfile == '':
+    print "You must specify an fit file."
+    sys.exit(0)
+
+  #Create the xyz coord in Molecule class
+  reffilelol = parseXYZ(reffile)
+  fitfilelol = parseXYZ(fitfile)
+
+  #print reffile
+  #printMolecule(reffilelol)
+  #print fitfile
+  #printMolecule(fitfilelol)
+
+  #Parse the pairs file
+  pairs, weights = parsePairs(pairsfile)
+  #print pairs
+  #print weights
+
+  #Create the reference coords based on the pairs
+  ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
+
+  #Center the reference coords around 0,0,0
+  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
+  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
+
+  #print "ref_xyz"
+  #print refcenter
+  #printMolecule(ref_xyz)
+  #print "fit_xyz"
+  #print fitcenter
+  #printMolecule(fit_xyz)
+
+  #fit the specified atom coords of the fit to reference
+  quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)
+
+  #print quaternion
+  #print rotmat
+  #print maxsweeps
+
+  #subtract coordinates of the center of fitted atoms of the fitted molecule
+  #from all atom coordinates of the fitted molecule (note that weight is
+  #a dummy parameter)
+  fitcenter, fitfilelol = center(fitfilelol, weights, 2, fitcenter)
+
+  # rotate the fitted molecule by the rotation matrix u
+  fitfilelol = rotmol(fitfilelol, rotmat)
+
+  # same with set of fitted atoms of the fitted molecule
+  fit_xyz = rotmol(fit_xyz, rotmat)
+
+  ### Haven't yet fully translated this section
+  # if modes given in fitted molecule, rotate the modes too
+  #if n_fields_f > 4:
+  #  rotmol(nat_f, modes_f, modes_f, u)
+  #  # calculate dot product of reference and fitted molecule modes
+  #  if n_fields_r > 4:
+  #    dotm = 0.0
+  #    #for (i = 1; i <= npairs; i++) {
+  #    for i in range(1,len(pairs)):
+  #      #for (j = 1; j <= 3; j++) {
+  #      for j in range(1,3):
+  #        dotm += modes_r[j][atoms_r[i]]*modes_f[j][atoms_f[i]]
+
+  # translate atoms of the fitted molecule to the center
+  # of fitted atoms of the reference molecule
+  refcenter, fitfilelol = center(fitfilelol, weights, 3, refcenter)
+
+  # same with set of fitted atoms of the fitted molecule
+  refcenter, fit_xyz = center(fit_xyz, weights, 3, refcenter)
+
+  # translate fitted atoms of reference molecule to their orig. location
+  refcenter, ref_xyz = center(ref_xyz, weights, 3, refcenter)
+
+
+  # write modified XYZ file for fitted molecule
+  #printMolecule(fitfilelol)
+  outputXYZ(ofile, fitfilelol, 1)
+
+  printlines = [""]
+  # find distances between fitted and reference atoms and print them in out file
+  printlines.append("Distances and weighted distances between fitted atoms")
+  printlines.append("Ref.At. Fit.At.  Distance  Dist*sqrt(weight)  weight")
+
+  rms = 0.0
+  wnorm = 0.0
+  for i in range(len(pairs)):
+    d = 0.0
+    for j in range(3):
+      if j == 0:
+        s = ref_xyz[i].x - fit_xyz[i].x
+      elif j == 1:
+        s = ref_xyz[i].y - fit_xyz[i].y
+      elif j == 2:
+        s = ref_xyz[i].z - fit_xyz[i].z
+      d += s*s
+    rms += d
+    printlines.append("  " + str("{0: <4}".format(ref_xyz[i].e)) + "    " + str("{0: <5}".format(fit_xyz[i].e)) + "  "\
+          + str("{:.6f}".format(d)) + "      " + str("{:.6f}".format(weights[i]*d)) + "      "+ str("{:.6f}".format(weights[i])))
+
+  rms = math.sqrt(rms/len(pairs))
+  printlines.append("\nWeighted root mean square = " + str("{:.6f}".format(rms)))
+
+  printlines.append("\nCenter of reference molecule fitted atoms")
+  printlines.append("Xc = " + str("{:.6f}".format(refcenter[0])) + " Yc = " + str("{:.6f}".format(refcenter[1])) + " Zc = " + str("{:.6f}".format(refcenter[2])))
+
+  printlines.append("\nCenter of fitted molecule fitted atoms")
+  printlines.append("Xc = " + str("{:.6f}".format(fitcenter[0])) + " Yc = " + str("{:.6f}".format(fitcenter[1])) + " Zc = " + str("{:.6f}".format(fitcenter[2])))
+
+  printlines.append("\nLeft rotation matrix")
+  for i in range(3):
+    printlines.append(" " + str("{:10.6f}".format(rotmat[i][0])) + "  " + str("{:10.6f}".format(rotmat[i][1])) + "  " + str("{:10.6f}".format(rotmat[i][2])))
+
+  #Write out the stats if there is a statfile else print to screen
+  if statfile == '':
+    for line in printlines:
+      print line
+  else:
+    f = open(statfile, 'w+')
+    for line in printlines:
+      f.write(line + "\n")
+    f.close()
+
+  #/* {
+  # double rmsd = 0.0;
+  # double x,y,z;
+  # for(int i = 1; i <= npairs; i++)
+  # {
+  #   x = ref_xyz[1][i] - fit_xyz[1][i];
+  #   y = ref_xyz[2][i] - fit_xyz[2][i];
+  #   z = ref_xyz[3][i] - fit_xyz[3][i];
+  #
+  #   rmsd += x*x;
+  #   rmsd += y*y;
+  #   rmsd += z*z;
+  #   //rmsd += (pow(ref_xyz[1][i] - fit_xyz[1][i], 2) + pow(ref_xyz[2][i] - fit_xyz[2][i], 2) + pow(ref_xyz[3][i] - fit_xyz[3][i], 2));
+  # }
+  # //rmsd /= static_cast<double>(npairs);
+  # rms = sqrt(rmsd/npairs);
+  # }*/
+  #if((n_fields_f > 4) && (n_fields_r > 4)) {
+  #  fprintf(statfile,
+  #  "\nDot product of normal modes on fitted atom pairs =%11.6f\n", dotm);
+  #  }
+
+
+  return
