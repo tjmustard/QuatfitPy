@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="be6ecd54-96ee-426f-9acd-24f10f348aa3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/QuatfitPy-CLASSICAL.py" afterPath="$PROJECT_DIR$/QuatfitPy-CLASSICAL.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib-quatfit/quatfit.py" afterPath="$PROJECT_DIR$/lib-quatfit/quatfit.py" />
     </list>
     <ignored path="QuatfitPy.iws" />
@@ -41,11 +40,21 @@
       <file leaf-file-name="quatfit.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.28883773" vertical-offset="2637" max-vertical-offset="14041">
-              <caret line="152" column="21" selection-start-line="152" selection-start-column="21" selection-end-line="152" selection-end-column="21" />
+            <state vertical-scroll-proportion="0.6720368" vertical-offset="10189" max-vertical-offset="15770">
+              <caret line="567" column="0" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
               <folding>
                 <element signature="e#5607#5616#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="QuatfitPy-NEW.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/QuatfitPy-NEW.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="876" max-vertical-offset="1786">
+              <caret line="80" column="26" selection-start-line="80" selection-start-column="26" selection-end-line="80" selection-end-column="26" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -67,6 +76,7 @@
         <option value="$PROJECT_DIR$/lib-quatfit/quatfit.h" />
         <option value="$PROJECT_DIR$/QuatfitPy-CLASSICAL.py" />
         <option value="$PROJECT_DIR$/lib-quatfit/quatfit.py" />
+        <option value="$PROJECT_DIR$/QuatfitPy-NEW.py" />
       </list>
     </option>
   </component>
@@ -366,10 +376,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/QuatfitPy-NEW.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="876" max-vertical-offset="1786">
+          <caret line="80" column="26" selection-start-line="80" selection-start-column="26" selection-end-line="80" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/lib-quatfit/quatfit.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.28883773" vertical-offset="2637" max-vertical-offset="14041">
-          <caret line="152" column="21" selection-start-line="152" selection-start-column="21" selection-end-line="152" selection-end-column="21" />
+        <state vertical-scroll-proportion="0.6720368" vertical-offset="10189" max-vertical-offset="15770">
+          <caret line="567" column="0" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
           <folding>
             <element signature="e#5607#5616#0" expanded="true" />
           </folding>

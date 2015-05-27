@@ -385,7 +385,7 @@ def jacobi(matrix, maxsweeps):
       dnorm = dnorm + math.fabs(eigenval[j])
       for i in range(j):
         onorm = onorm + math.fabs(matrix[i][j])
-    if (onorm/dnorm) <= 1.0e-12: break #goto Exit_now;
+    if onorm/dnorm <= 1.0e-12: break #goto Exit_now;
     for j in range(1,4):
       for i in range(j):
         b = matrix[i][j]
@@ -689,10 +689,10 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   printlines.append("\nWeighted root mean square = " + str("{:.6f}".format(rms)))
 
   printlines.append("\nCenter of reference molecule fitted atoms")
-  printlines.append("Xc = " + str("{:.6f}".format(refcenter[0])) + " Yc = " + str("{:.6f}".format(refcenter[1])) + " Zc = " + str("{:.6f}".format(refcenter[2])))
+  printlines.append("Xc = " + str("{:.6f}".format(refcenter[0])) + "  Yc = " + str("{:.6f}".format(refcenter[1])) + "  Zc = " + str("{:.6f}".format(refcenter[2])))
 
   printlines.append("\nCenter of fitted molecule fitted atoms")
-  printlines.append("Xc = " + str("{:.6f}".format(fitcenter[0])) + " Yc = " + str("{:.6f}".format(fitcenter[1])) + " Zc = " + str("{:.6f}".format(fitcenter[2])))
+  printlines.append("Xc = " + str("{:.6f}".format(fitcenter[0])) + "  Yc = " + str("{:.6f}".format(fitcenter[1])) + "  Zc = " + str("{:.6f}".format(fitcenter[2])))
 
   printlines.append("\nLeft rotation matrix")
   for i in range(3):
@@ -730,5 +730,96 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   #  "\nDot product of normal modes on fitted atom pairs =%11.6f\n", dotm);
   #  }
 
-
   return
+
+### --- Run the classic quatfit --- ###
+def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
+  '''
+  This runs quatfit in a updated form
+  reffilelol - reference coordinate in Molecule format
+  fitfilelol - fit coordinate in molecule format
+  pairs - the pairs in a list of lists (i.e. [[2, 3], [3, 13], ...])
+  weights - the weights in a list (i.e. [1, 1, ...])
+  '''
+
+  #print reffile
+  #printMolecule(reffilelol)
+  #print fitfile
+  #printMolecule(fitfilelol)
+
+  #print pairs
+  #print weights
+
+  #Create the reference coords based on the pairs
+  ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
+
+  #Center the reference coords around 0,0,0
+  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
+  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
+
+  #print "ref_xyz"
+  #print refcenter
+  #printMolecule(ref_xyz)
+  #print "fit_xyz"
+  #print fitcenter
+  #printMolecule(fit_xyz)
+
+  #fit the specified atom coords of the fit to reference
+  quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)
+
+  #print quaternion
+  #print rotmat
+  #print maxsweeps
+
+  #subtract coordinates of the center of fitted atoms of the fitted molecule
+  #from all atom coordinates of the fitted molecule (note that weight is
+  #a dummy parameter)
+  fitcenter, fitfilelol = center(fitfilelol, weights, 2, fitcenter)
+
+  # rotate the fitted molecule by the rotation matrix u
+  fitfilelol = rotmol(fitfilelol, rotmat)
+
+  # same with set of fitted atoms of the fitted molecule
+  fit_xyz = rotmol(fit_xyz, rotmat)
+
+  ### Haven't yet fully translated this section
+  # if modes given in fitted molecule, rotate the modes too
+  #if n_fields_f > 4:
+  #  rotmol(nat_f, modes_f, modes_f, u)
+  #  # calculate dot product of reference and fitted molecule modes
+  #  if n_fields_r > 4:
+  #    dotm = 0.0
+  #    #for (i = 1; i <= npairs; i++) {
+  #    for i in range(1,len(pairs)):
+  #      #for (j = 1; j <= 3; j++) {
+  #      for j in range(1,3):
+  #        dotm += modes_r[j][atoms_r[i]]*modes_f[j][atoms_f[i]]
+
+  # translate atoms of the fitted molecule to the center
+  # of fitted atoms of the reference molecule
+  refcenter, fitfilelol = center(fitfilelol, weights, 3, refcenter)
+
+  # same with set of fitted atoms of the fitted molecule
+  refcenter, fit_xyz = center(fit_xyz, weights, 3, refcenter)
+
+  # translate fitted atoms of reference molecule to their orig. location
+  refcenter, ref_xyz = center(ref_xyz, weights, 3, refcenter)
+
+  rms = 0.0
+  wnorm = 0.0
+  for i in range(len(pairs)):
+    d = 0.0
+    for j in range(3):
+      if j == 0:
+        s = ref_xyz[i].x - fit_xyz[i].x
+      elif j == 1:
+        s = ref_xyz[i].y - fit_xyz[i].y
+      elif j == 2:
+        s = ref_xyz[i].z - fit_xyz[i].z
+      d += s*s
+    rms += d
+
+  rms = math.sqrt(rms/len(pairs))
+
+
+  return fitfilelol, rms
