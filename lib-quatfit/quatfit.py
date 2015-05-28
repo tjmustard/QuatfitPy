@@ -105,7 +105,7 @@
 #       T  X  Y  Z  C             (total of 5 columns)
 #       T  X  Y  Z  Mx My Mz      (total of 7 columns)
 #       T  X  Y  Z  C Mx My Mz    (total of 8 columns)
-#     where T is atom type (usually elemnt symbol), X, Y, Z are cartesian
+#     where T is atom type (usually element symbol), X, Y, Z are cartesian
 #     coordinates of an atom in Angstroms, C is atomic charge, and Mx, My, Mz
 #     are normal modes.
 #
@@ -140,8 +140,8 @@ import sys
 
 
 ###==================================================================================================================###
-### --- Molecule class --- ###
-class Molecule(object):
+### --- Atom class --- ###
+class Atom(object):
   def __init__(self):
     #Hold the string for the element
     self.e = ''
@@ -162,7 +162,7 @@ class Molecule(object):
     #Hold the float for the z coordinate
     self.mz = ''
 
-### --- Parse the input XYZ file and convert it into a Molecule Class list of lists --- ###
+### --- Parse the input XYZ file and convert it into a Atom Class list of lists --- ###
 def parseXYZ(ifile):
   ### --- Open parent file, read it in and close it --- ###
   f = open(ifile, "r")
@@ -175,7 +175,7 @@ def parseXYZ(ifile):
   #### --- Input/parse the input file into a list of lists called ifilelol --- ###
   for i in range(2,ifileLength):
     line = ifileList[i].rstrip().split()
-    ifilelol[i-2] = Molecule()
+    ifilelol[i-2] = Atom()
     ifilelol[i-2].e = line[0]
     ifilelol[i-2].x = float(line[1])
     ifilelol[i-2].y = float(line[2])
@@ -202,7 +202,7 @@ def outputXYZ(ofile, ofilelol, printlevel):
   #iterate through the whole ifilelol and write each line in XYZ format to the file
   for i in range(len(ofilelol)):
     #if the instance is in Atom form print the 'element X-Coord Y-Coord Z-Coord'
-    if isinstance(ofilelol[i], Molecule):
+    if isinstance(ofilelol[i], Atom):
       if printlevel == 1:
         line = ofilelol[i].e + "  " + str("{:.6f}".format(ofilelol[i].x)) + "  " + str("{:.6f}".format(ofilelol[i].y)) + "  " + str("{:.6f}".format(ofilelol[i].z))
       elif printlevel == 2:
@@ -244,7 +244,7 @@ def createRefGeom(reflol, fitlol, pairs):
   #Copy the pair atoms from the original molecule into the reference xyz file
   for i in range(len(pairs)):
     #Copy the ref pairs
-    ref_xyz[i] = Molecule()
+    ref_xyz[i] = Atom()
     ref_xyz[i].e = reflol[pairs[i][0]-1].e
     ref_xyz[i].x = reflol[pairs[i][0]-1].x
     ref_xyz[i].y = reflol[pairs[i][0]-1].y
@@ -254,7 +254,7 @@ def createRefGeom(reflol, fitlol, pairs):
     ref_xyz[i].my = reflol[pairs[i][0]-1].my
     ref_xyz[i].mz = reflol[pairs[i][0]-1].mz
     #Copy the fit pairs
-    fit_xyz[i] = Molecule()
+    fit_xyz[i] = Atom()
     fit_xyz[i].e = fitlol[pairs[i][1]-1].e
     fit_xyz[i].x = fitlol[pairs[i][1]-1].x
     fit_xyz[i].y = fitlol[pairs[i][1]-1].y
@@ -266,7 +266,7 @@ def createRefGeom(reflol, fitlol, pairs):
   return ref_xyz, fit_xyz
 
 ### --- Print the molecule class object --- ###
-def printMolecule(ofilelol):
+def printAtom(ofilelol):
   for i in range(len(ofilelol)):
     print ofilelol[i].e + "  " + str("{:.6f}".format(ofilelol[i].x)) + "  " + str("{:.6f}".format(ofilelol[i].y)) + "  " + str("{:.6f}".format(ofilelol[i].z)) + "  " + str("{:.6f}".format(ofilelol[i].charge)) + "  " + str("{:.6f}".format(ofilelol[i].mx)) + "  " + str("{:.6f}".format(ofilelol[i].my)) + "  " + str("{:.6f}".format(ofilelol[i].mz))
   return
@@ -579,7 +579,7 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   statfile - the stat file name if wanted
   '''
 
-  #Check to make sure all the files are there
+  #Check to make sure all the files are accounted for
   if ofile == '':
     print "You must specify an output file."
     sys.exit(0)
@@ -590,19 +590,12 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
     print "You must specify an fit file."
     sys.exit(0)
 
-  #Create the xyz coord in Molecule class
+  #Create the xyz coord in Atom class
   reffilelol = parseXYZ(reffile)
   fitfilelol = parseXYZ(fitfile)
 
-  #print reffile
-  #printMolecule(reffilelol)
-  #print fitfile
-  #printMolecule(fitfilelol)
-
   #Parse the pairs file
   pairs, weights = parsePairs(pairsfile)
-  #print pairs
-  #print weights
 
   #Create the reference coords based on the pairs
   ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
@@ -611,19 +604,8 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
   fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
 
-  #print "ref_xyz"
-  #print refcenter
-  #printMolecule(ref_xyz)
-  #print "fit_xyz"
-  #print fitcenter
-  #printMolecule(fit_xyz)
-
   #fit the specified atom coords of the fit to reference
   quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)
-
-  #print quaternion
-  #print rotmat
-  #print maxsweeps
 
   #subtract coordinates of the center of fitted atoms of the fitted molecule
   #from all atom coordinates of the fitted molecule (note that weight is
@@ -659,9 +641,7 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   # translate fitted atoms of reference molecule to their orig. location
   refcenter, ref_xyz = center(ref_xyz, weights, 3, refcenter)
 
-
   # write modified XYZ file for fitted molecule
-  #printMolecule(fitfilelol)
   outputXYZ(ofile, fitfilelol, 1)
 
   printlines = [""]
@@ -684,8 +664,8 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
     rms += d
     printlines.append("  " + str("{0: <4}".format(ref_xyz[i].e)) + "    " + str("{0: <5}".format(fit_xyz[i].e)) + "  "\
           + str("{:.6f}".format(d)) + "      " + str("{:.6f}".format(weights[i]*d)) + "      "+ str("{:.6f}".format(weights[i])))
-
   rms = math.sqrt(rms/len(pairs))
+
   printlines.append("\nWeighted root mean square = " + str("{:.6f}".format(rms)))
 
   printlines.append("\nCenter of reference molecule fitted atoms")
@@ -736,19 +716,11 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
 def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
   '''
   This runs quatfit in a updated form
-  reffilelol - reference coordinate in Molecule format
+  reffilelol - reference coordinate in Atom format
   fitfilelol - fit coordinate in molecule format
   pairs - the pairs in a list of lists (i.e. [[2, 3], [3, 13], ...])
   weights - the weights in a list (i.e. [1, 1, ...])
   '''
-
-  #print reffile
-  #printMolecule(reffilelol)
-  #print fitfile
-  #printMolecule(fitfilelol)
-
-  #print pairs
-  #print weights
 
   #Create the reference coords based on the pairs
   ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
@@ -757,19 +729,8 @@ def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
   refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
   fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
 
-  #print "ref_xyz"
-  #print refcenter
-  #printMolecule(ref_xyz)
-  #print "fit_xyz"
-  #print fitcenter
-  #printMolecule(fit_xyz)
-
   #fit the specified atom coords of the fit to reference
   quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)
-
-  #print quaternion
-  #print rotmat
-  #print maxsweeps
 
   #subtract coordinates of the center of fitted atoms of the fitted molecule
   #from all atom coordinates of the fitted molecule (note that weight is
@@ -781,19 +742,6 @@ def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
 
   # same with set of fitted atoms of the fitted molecule
   fit_xyz = rotmol(fit_xyz, rotmat)
-
-  ### Haven't yet fully translated this section
-  # if modes given in fitted molecule, rotate the modes too
-  #if n_fields_f > 4:
-  #  rotmol(nat_f, modes_f, modes_f, u)
-  #  # calculate dot product of reference and fitted molecule modes
-  #  if n_fields_r > 4:
-  #    dotm = 0.0
-  #    #for (i = 1; i <= npairs; i++) {
-  #    for i in range(1,len(pairs)):
-  #      #for (j = 1; j <= 3; j++) {
-  #      for j in range(1,3):
-  #        dotm += modes_r[j][atoms_r[i]]*modes_f[j][atoms_f[i]]
 
   # translate atoms of the fitted molecule to the center
   # of fitted atoms of the reference molecule
@@ -820,6 +768,5 @@ def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
     rms += d
 
   rms = math.sqrt(rms/len(pairs))
-
 
   return fitfilelol, rms
