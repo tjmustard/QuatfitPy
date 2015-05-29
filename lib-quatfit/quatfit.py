@@ -166,15 +166,15 @@ class Atom(object):
 def parseXYZ(ifile):
   ### --- Open parent file, read it in and close it --- ###
   f = open(ifile, "r")
-  ifileList = f.readlines()
+  ifilelist = f.readlines()
   f.close()
   #Find out the final length of the ifilelol
-  ifileLength = len(ifileList)
+  ifilelength = len(ifilelist)
   #Fill the ifilelol with 0's so that there is a place to put the atomic data
-  ifilelol = [0] * (ifileLength - 2)
+  ifilelol = [0] * (ifilelength - 2)
   #### --- Input/parse the input file into a list of lists called ifilelol --- ###
-  for i in range(2,ifileLength):
-    line = ifileList[i].rstrip().split()
+  for i in range(2, ifilelength):
+    line = ifilelist[i].rstrip().split()
     ifilelol[i-2] = Atom()
     ifilelol[i-2].e = line[0]
     ifilelol[i-2].x = float(line[1])
@@ -187,7 +187,7 @@ def parseXYZ(ifile):
       ifilelol[i-2].my = float(line[6])
       ifilelol[i-2].mz = float(line[7])
   #If the XYZ file is longer or shorter than the list of data should be, warn the user.
-  if int(ifileList[0]) != len(ifilelol):
+  if int(ifilelist[0]) != len(ifilelol):
     print "Your file is the wrong length!"
     print "Make sure you have the right number of atoms."
     exit(0)
@@ -210,7 +210,7 @@ def outputXYZ(ofile, ofilelol, printlevel):
       elif printlevel == 3:
         line = ofilelol[i].e + "  " + str("{:.6f}".format(ofilelol[i].x)) + "  " + str("{:.6f}".format(ofilelol[i].y)) + "  " + str("{:.6f}".format(ofilelol[i].z)) + "  " + str("{:.6f}".format(ofilelol[i].charge)) + "  " + str("{:.6f}".format(ofilelol[i].mx)) + "  " + str("{:.6f}".format(ofilelol[i].my)) + "  " + str("{:.6f}".format(ofilelol[i].mz))
     f.write(line + "\n")
-  f.close
+  f.close()
   return
 
 ### --- Parse the pairs file and return both the pairs and the weights --- ###
@@ -220,7 +220,6 @@ def parsePairs(pairsfile):
   pairsfilelist = f.readlines()
   f.close()
   #Find out the final length of the ifilelol
-  pairsfilelength = len(pairsfile)
   if int(pairsfilelist[0]) != len(pairsfilelist) - 1:
     print "The pairs file is the incorrect length.\nIt should be " \
           + str(int(pairsfilelist[0])) + " pairs long and it is " + str(len(pairsfilelist) - 1) + " pairs long."
@@ -232,7 +231,7 @@ def parsePairs(pairsfile):
         pairnum = int(pairsfilelist[i])
       elif i >= 1:
         line = pairsfilelist[i].strip().split()
-        pairs.append([int(line[0]),int(line[1])])
+        pairs.append([int(line[0]), int(line[1])])
         weights.append(int(line[2]))
   return pairs, weights
 
@@ -273,7 +272,7 @@ def printAtom(ofilelol):
 
 ### --- center the coordinates, or translate them to some xyz --- ###
 def center(filelol, weights, centerswitch, centerxyz):
-  '''====================================================================
+  """====================================================================
   CENTER
    center or translate a molecule.
    atomnum (n) - number of atoms
@@ -293,13 +292,13 @@ def center(filelol, weights, centerswitch, centerxyz):
        if centerswitch=2, input, vector center will be subtracted from atomic coordinates
        if centerswitch=3, input, vector center will be added to atomic coordinates
 
-  ====================================================================='''
+  ====================================================================="""
   wnorm = float(0.00)
   modif = float(0.00)
   #int i
-  if (centerswitch == 2):
+  if centerswitch == 2:
     modif = -1.0
-  elif (centerswitch == 3):
+  elif centerswitch == 3:
     modif = 1.0
   else:
     modif = -1.0
@@ -316,22 +315,22 @@ def center(filelol, weights, centerswitch, centerxyz):
     centerxyz[1] = centerxyz[1] / wnorm
     centerxyz[2] = centerxyz[2] / wnorm
   for i in range(len(filelol)):
-    filelol[i].x = filelol[i].x + modif*centerxyz[0]
-    filelol[i].y = filelol[i].y + modif*centerxyz[1]
-    filelol[i].z = filelol[i].z + modif*centerxyz[2]
+    filelol[i].x += modif*centerxyz[0]
+    filelol[i].y += modif*centerxyz[1]
+    filelol[i].z += modif*centerxyz[2]
   return centerxyz, filelol
 
 
 ### --- ROTMOL --- ###
 def rotmol(filelol, rotmat):
-  '''
+  """
   ROTMOL
   rotate a molecule
   n - number of atoms
   filelol (x) - input coordinates
   filelol (y) - rotated coordinates y = u * x
   rotmat (u) - left rotation matrix
-  '''
+  """
   yx = float(0.0)
   yy = float(0.0)
   yz = float(0.0)
@@ -340,15 +339,15 @@ def rotmol(filelol, rotmat):
     yx = rotmat[0][0] * filelol[i].x + rotmat[1][0] * filelol[i].y + rotmat[2][0] * filelol[i].z
     yy = rotmat[0][1] * filelol[i].x + rotmat[1][1] * filelol[i].y + rotmat[2][1] * filelol[i].z
     yz = rotmat[0][2] * filelol[i].x + rotmat[1][2] * filelol[i].y + rotmat[2][2] * filelol[i].z
-    filelol[i].x = yx #x
-    filelol[i].y = yy #y
-    filelol[i].z = yz #z
+    filelol[i].x = yx  #x
+    filelol[i].y = yy  #y
+    filelol[i].z = yz  #z
   return filelol
 
 
 ### --- JACOBI --- ###
 def jacobi(matrix, maxsweeps):
-  '''
+  """
   JACOBI
   Jacobi diagonalizer with sorted output. It is only good for 4x4 matrices.
   (was too lazy to do pointers...)
@@ -356,7 +355,7 @@ def jacobi(matrix, maxsweeps):
   eigenvect (v) - output: eigenvectors
   eigenval (d) - output: eigenvalues
   maxsweeps (nrot) - input: maximum number of sweeps
-  '''
+  """
 
   eigenvect = [[float(0.0) for x in range(4)] for x in range(4)]
   eigenval = [float(0.0) for x in range(4)]
@@ -382,11 +381,11 @@ def jacobi(matrix, maxsweeps):
     dnorm = 0.0
     onorm = 0.0
     for j in range(4):
-      dnorm = dnorm + math.fabs(eigenval[j])
+      dnorm += math.fabs(eigenval[j])
       for i in range(j):
-        onorm = onorm + math.fabs(matrix[i][j])
-    if onorm/dnorm <= 1.0e-12: break #goto Exit_now;
-    for j in range(1,4):
+        onorm += math.fabs(matrix[i][j])
+    if onorm/dnorm <= 1.0e-12: break  #goto Exit_now;
+    for j in range(1, 4):
       for i in range(j):
         b = matrix[i][j]
         if math.fabs(b) > 0.0:
@@ -405,11 +404,11 @@ def jacobi(matrix, maxsweeps):
             atemp = c * matrix[k][i] - s * matrix[k][j]
             matrix[k][j] = s * matrix[k][i] + c * matrix[k][j]
             matrix[k][i] = atemp
-          for k in range(i+1,j):
+          for k in range(i+1, j):
             atemp = c * matrix[i][k] - s * matrix[k][j]
             matrix[k][j] = s * matrix[i][k] + c * matrix[k][j]
             matrix[i][k] = atemp
-          for k in range(j+1,4):
+          for k in range(j+1, 4):
             atemp = c * matrix[i][k] - s * matrix[j][k]
             matrix[j][k] = s * matrix[i][k] + c * matrix[j][k]
             matrix[i][k] = atemp
@@ -426,7 +425,7 @@ def jacobi(matrix, maxsweeps):
   for j in range(3):
     k = j
     dtemp = eigenval[k]
-    for i in range(j+1,4):
+    for i in range(j+1, 4):
       if eigenval[i] < dtemp:
         k = i
         dtemp = eigenval[k]
@@ -445,7 +444,7 @@ def jacobi(matrix, maxsweeps):
 
 ### --- Q2MAT --- ###
 def q2mat(quaternion):
-  '''
+  """
   Q2MAT
   Generate a left rotation matrix from a normalized quaternion
 
@@ -454,7 +453,7 @@ def q2mat(quaternion):
 
   OUTPUT
     rotmat (u)      - the rotation matrix
-  '''
+  """
   rotmat = [[float(0.0) for x in range(3)] for x in range(3)]
   rotmat[0][0] = quaternion[0]*quaternion[0] + quaternion[1]*quaternion[1] - quaternion[2]*quaternion[2] - quaternion[3]*quaternion[3]
   rotmat[1][0] = 2.0 * (quaternion[1] * quaternion[2] - quaternion[0] * quaternion[3])
@@ -470,7 +469,7 @@ def q2mat(quaternion):
 
 ### --- QTRFIT --- ###
 def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
-  '''
+  """
    QTRFIT
    Find the quaternion, q,[and left rotation matrix, u] that minimizes
 
@@ -514,11 +513,11 @@ def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
      rotmat (u)      - the best-fit left rotation matrix
      maxsweeps (nr)     - max number of jacobi sweeps
 
-  '''
+  """
 
 
   #Create variables/lists/matrixes
-  matrix = [[float(0.0) for x in range(4)] for x in range(4)] #double c[4][4]
+  matrix = [[float(0.0) for x in range(4)] for x in range(4)]  #double c[4][4]
   quaternion = [float(0.0) for x in range(4)]
 
   # generate the upper triangle of the quadratic form matrix
@@ -570,14 +569,14 @@ def qtrfit(fit_xyz, ref_xyz, weights, maxsweeps):
 
 ### --- Run the classic quatfit --- ###
 def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
-  '''
+  """
   This runs quatfit in it's classic form you must give it:
   reffile - reference coordinate file (xyz)
   fitfile - fit coordinate file (xyz) (The one you want to change)
   pairsfile - the pairs file
   ofile - the output file name
   statfile - the stat file name if wanted
-  '''
+  """
 
   #Check to make sure all the files are accounted for
   if ofile == '':
@@ -601,8 +600,8 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
 
   #Center the reference coords around 0,0,0
-  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
-  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
+  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0), float(0), float(0)])
+  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0), float(0), float(0)])
 
   #fit the specified atom coords of the fit to reference
   quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)
@@ -644,10 +643,9 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
   # write modified XYZ file for fitted molecule
   outputXYZ(ofile, fitfilelol, 1)
 
-  printlines = [""]
   # find distances between fitted and reference atoms and print them in out file
-  printlines.append("Distances and weighted distances between fitted atoms")
-  printlines.append("Ref.At. Fit.At.  Distance  Dist*sqrt(weight)  weight")
+  printlines = ["", "Distances and weighted distances between fitted atoms",
+                "Ref.At. Fit.At.  Distance  Dist*sqrt(weight)  weight"]
 
   rms = 0.0
   wnorm = 0.0
@@ -662,21 +660,25 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
         s = ref_xyz[i].z - fit_xyz[i].z
       d += s*s
     rms += d
-    printlines.append("  " + str("{0: <4}".format(ref_xyz[i].e)) + "    " + str("{0: <5}".format(fit_xyz[i].e)) + "  "\
-          + str("{:.6f}".format(d)) + "      " + str("{:.6f}".format(weights[i]*d)) + "      "+ str("{:.6f}".format(weights[i])))
+    printlines.append("  " + str("{0: <4}".format(ref_xyz[i].e)) + "    " + str("{0: <5}".format(fit_xyz[i].e)) + "  "
+                      + str("{:.6f}".format(d)) + "      " + str("{:.6f}".format(weights[i]*d)) + "      "
+                      + str("{:.6f}".format(weights[i])))
   rms = math.sqrt(rms/len(pairs))
 
   printlines.append("\nWeighted root mean square = " + str("{:.6f}".format(rms)))
 
   printlines.append("\nCenter of reference molecule fitted atoms")
-  printlines.append("Xc = " + str("{:.6f}".format(refcenter[0])) + "  Yc = " + str("{:.6f}".format(refcenter[1])) + "  Zc = " + str("{:.6f}".format(refcenter[2])))
+  printlines.append("Xc = " + str("{:.6f}".format(refcenter[0])) + "  Yc = " + str("{:.6f}".format(refcenter[1])) +
+                    "  Zc = " + str("{:.6f}".format(refcenter[2])))
 
   printlines.append("\nCenter of fitted molecule fitted atoms")
-  printlines.append("Xc = " + str("{:.6f}".format(fitcenter[0])) + "  Yc = " + str("{:.6f}".format(fitcenter[1])) + "  Zc = " + str("{:.6f}".format(fitcenter[2])))
+  printlines.append("Xc = " + str("{:.6f}".format(fitcenter[0])) + "  Yc = " + str("{:.6f}".format(fitcenter[1])) +
+                    "  Zc = " + str("{:.6f}".format(fitcenter[2])))
 
   printlines.append("\nLeft rotation matrix")
   for i in range(3):
-    printlines.append(" " + str("{:10.6f}".format(rotmat[i][0])) + "  " + str("{:10.6f}".format(rotmat[i][1])) + "  " + str("{:10.6f}".format(rotmat[i][2])))
+    printlines.append(" " + str("{:10.6f}".format(rotmat[i][0])) + "  " + str("{:10.6f}".format(rotmat[i][1])) +
+                      "  " + str("{:10.6f}".format(rotmat[i][2])))
 
   #Write out the stats if there is a statfile else print to screen
   if statfile == '':
@@ -714,20 +716,20 @@ def quatfitClassic(reffile, fitfile, pairsfile, ofile, statfile):
 
 ### --- Run the classic quatfit --- ###
 def quatfitGetMolecule(reffilelol, fitfilelol, pairs, weights):
-  '''
+  """
   This runs quatfit in a updated form
   reffilelol - reference coordinate in Atom format
   fitfilelol - fit coordinate in molecule format
   pairs - the pairs in a list of lists (i.e. [[2, 3], [3, 13], ...])
   weights - the weights in a list (i.e. [1, 1, ...])
-  '''
+  """
 
   #Create the reference coords based on the pairs
   ref_xyz, fit_xyz = createRefGeom(reffilelol, fitfilelol, pairs)
 
   #Center the reference coords around 0,0,0
-  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0),float(0),float(0)])
-  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0),float(0),float(0)])
+  refcenter, ref_xyz = center(ref_xyz, weights, 1, [float(0), float(0), float(0)])
+  fitcenter, fit_xyz = center(fit_xyz, weights, 1, [float(0), float(0), float(0)])
 
   #fit the specified atom coords of the fit to reference
   quaternion, rotmat, maxsweeps = qtrfit(fit_xyz, ref_xyz, weights, 30)

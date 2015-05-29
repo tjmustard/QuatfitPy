@@ -1,8 +1,8 @@
 #! /usr/bin/env python2.7
 
-#   The MIT License (MIT)
+# The MIT License (MIT)
 #
-#   Copyright (c) 2015 Thomas J. L. Mustard, Paul Ha-Yeon Cheong
+# Copyright (c) 2015 Thomas J. L. Mustard, Paul Ha-Yeon Cheong
 #
 #   PHYC Group
 #   Oregon State University
