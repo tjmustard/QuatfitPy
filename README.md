@@ -1,6 +1,5 @@
 # QuatfitPy
 
- * [MIT license](https://github.com/tjmustard/QuatfitPy/blob/master/README.md) - a business friendly license for open source
  * Pure Python library with some example scripts for reference.
 
 

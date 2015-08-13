@@ -1,36 +1,26 @@
 #! /usr/bin/env python2.7
 
-#   The MIT License (MIT)
+##############################################################################
+# The program to superimpose atoms of two molecules by quaternion method
 #
-#   Copyright (c) 2015 Thomas J. L. Mustard, Paul Ha-Yeon Cheong
+# David J. Heisterberg
+# The Ohio Supercomputer Center
+# 1224 Kinnear Rd.
+# Columbus, OH  43212-1163
+# (614)292-6036
+# djh@ccl.net    djh@ohstpy.bitnet    ohstpy::djh
 #
-#   PHYC Group
-#   Oregon State University
-#   College of Science
-#   Department of Chemistry
-#   153 Gilbert Hall
-#   Corvallis OR, 97331
-#   E-mail:  mustardt@onid.orst.edu
-#   Ph.  (541)-737-2081
-#   http://phyc.chem.oregonstate.edu/
+# Translated to C from fitest.f program and interfaced with Xmol program
+# by Jan Labanowski,  jkl@ccl.net   jkl@ohstpy.bitnet   ohstpy::jkl
 #
-#   Permission is hereby granted, free of charge, to any person obtaining a copy
-#   of this software and associated documentation files (the "Software"), to deal
-#   in the Software without restriction, including without limitation the rights
-#   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#   copies of the Software, and to permit persons to whom the Software is
-#   furnished to do so, subject to the following conditions:
+# Translated to python from quatfit.c
+# by Thomas J. L. Mustard, mustardt@onid.orst.edu
 #
-#   The above copyright notice and this permission notice shall be included in all
-#   copies or substantial portions of the Software.
-#
-#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#   SOFTWARE.
+# Copyright: Ohio Supercomputer Center, David J. Heisterberg, 1990.
+# The program can be copied and distributed freely, provided that
+# this copyright in not removed. You may acknowledge the use of the
+# program in published material as:
+# David J. Heisterberg, 1990, unpublished results.
 
 import sys
 import getopt
